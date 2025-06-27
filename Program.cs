@@ -1,3 +1,6 @@
+using k8sFormApp.Services;
+using StackExchange.Redis;
+
 namespace k8sFormApp
 {
     public class Program
@@ -8,6 +11,15 @@ namespace k8sFormApp
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // Redis configuration
+            var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+            builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
+            {
+                return ConnectionMultiplexer.Connect(redisConnectionString);
+            });
+
+            builder.Services.AddScoped<IRedisService, RedisService>();
 
             var app = builder.Build();
 
