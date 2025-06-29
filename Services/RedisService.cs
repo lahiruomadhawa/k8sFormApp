@@ -16,11 +16,7 @@ namespace k8sFormApp.Services
         public async Task AddPersonAsync(string personJson)
         {
             // Use a list to queue persons for processing
-            //await _database.ListRightPushAsync("persons_queue", personJson);
-            await _database.ListRightPushAsync("persons_queue", personJson);
-
-            //await _database.StringSetAsync("Test", "Hello");
-            //var value = await _database.StringGetAsync("Test");
+            await _database.ListLeftPushAsync("persons_queue", personJson);
         }
     }
 }

@@ -9,27 +9,14 @@ namespace k8sFormApp
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            //builder.Configuration.AddEnvironmentVariables();
-
-            builder.WebHost.ConfigureKestrel(serverOptions =>
-            {
-                serverOptions.ListenAnyIP(8081); // Match the EXPOSE and Docker -p port
-            });
-
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
             // Redis configuration
-            var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "redis:6379";
+            var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
             builder.Services.AddSingleton<IConnectionMultiplexer>(provider =>
             {
-                //return ConnectionMultiplexer.Connect(redisConnectionString);
-
-                var configuration = ConfigurationOptions.Parse(redisConnectionString);
-                configuration.AbortOnConnectFail = false; // Important for Kubernetes
-                configuration.ConnectRetry = 3;
-                configuration.ConnectTimeout = 5000;
-                return ConnectionMultiplexer.Connect(configuration);
+                return ConnectionMultiplexer.Connect(redisConnectionString);
             });
 
             builder.Services.AddScoped<IRedisService, RedisService>();
@@ -44,7 +31,7 @@ namespace k8sFormApp
                 app.UseHsts();
             }
 
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();

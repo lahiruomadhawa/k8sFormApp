@@ -10,12 +10,10 @@ namespace k8sFormApp.Controllers
     {
 
         private readonly IRedisService _redisService;
-        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(IRedisService redisService, ILogger<HomeController> logger)
+        public HomeController(IRedisService redisService)
         {
             _redisService = redisService;
-            _logger = logger;
         }
 
         public IActionResult Index()
@@ -39,21 +37,12 @@ namespace k8sFormApp.Controllers
                     });
                     await _redisService.AddPersonAsync(personJson);
 
-
                     ViewBag.Message = "Person saved successfully!";
-                    _logger.LogInformation("------------------------------------------------------------------------------------");
-                    _logger.LogInformation("Person saved successfully: {Person}", personJson);
-                    _logger.LogInformation("------------------------------------------------------------------------------------");
-
-                    Console.WriteLine("------------------------------------------------------------------------------------");
-                    Console.WriteLine("Person saved successfully: " + person.FirstName.ToString());
-                    Console.WriteLine("------------------------------------------------------------------------------------");
-                    ModelState.Clear();
-                    return View(new Person());
+                    ModelState.Clear(); // Clear the model state to reset the form
+                    return View(new Person()); // Return a new instance of Person to reset the form
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex.ToString(), "Error saving person to Redis");
                     ViewBag.Message = $"Error saving person: {ex.Message}";
                 }
             }
